@@ -8,7 +8,10 @@
     "eject": "expo eject"
   },
   "dependencies": {
+    "axios": "^0.21.1",
     "expo": "~40.0.0",
+    "expo-app-loading": "^1.0.1",
+    "expo-font": "^9.0.0",
     "expo-status-bar": "~1.0.3",
     "react": "16.13.1",
     "react-dom": "16.13.1",
@@ -18,5 +21,11 @@
   "devDependencies": {
     "@babel/core": "^7.9.0"
   },
-  "private": true
+  "private": true,
+  "rnpm": {
+    "assets": [
+      "./assets/fonts/FinkHeavy/FinkHeavy.woff",
+      "./assets/fonts/FinkHeavy/FinkHeavy.ttf"
+    ]
+  }
 }
