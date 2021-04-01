@@ -3,26 +3,21 @@ import React, { useState, useEffect } from 'react';
 import ArtArr from './ArtArr';
 import { StyleSheet, TextInput, Image, ImageBackground, Text, View, TouchableHighlight, Platform } from 'react-native';
 import AppLoading from 'expo-app-loading';
-import { useFonts } from 'expo-font';
+import { useFonts, Inter_900Black } from '@expo-google-fonts/inter';
 
 export default function App() {
-  const [artIds, setArtIds] = useState([3, 12, 16, 14, 42, 37, 28, 6, 24, 32]);
   const [userInput, setUserInput] = useState(0);
-  const [currentArt, setCurrentArt] = useState(0);
+  const [currentArt, setCurrentArt] = useState(null);
   const [artData, setArtData] = useState([]);
   const [currentActualPrice, setCurrentActualPrice] = useState(0);
   const [showScore, setShowScore] = useState(false);
   const [score, setScore] = useState(0);
 
-  let [fontsLoaded] = useFonts({
-    'FinkHeavy': require('./assets/fonts/FinkHeavy/FinkHeavy.ttf'),
-  });
-
   const onPressStart = () => {
-    let newArtOrder = shuffleArt(ArtArr)
+    let newArtOrder = shuffleArt(ArtArr).slice(0, 10);
     setArtData(newArtOrder);
-    setCurrentArt(1);
-  }
+    setCurrentArt(0);
+  };
 
   const shuffleArt = (array) => {
     let currentIndex = array.length, temporaryValue, randomIndex;
@@ -36,61 +31,83 @@ export default function App() {
       array[randomIndex] = temporaryValue;
     }
     return array;
-  }
+  };
 
-  const onPressSubmit = (actualPrice) => {
-    if (userInput < actualPrice + 500 && userInput > actualPrice - 500) {
-      setScore(score + 1);
-    }
+  const onPressSubmit = () => {
+    const actualPrice = artData[currentArt]['buy-price'];
+    const weightedDifference = (( (score * currentArt) + ( 100 * Math.abs(actualPrice - userInput) / actualPrice ) ) / (currentArt + 1))
+    setScore(weightedDifference.toFixed(2))
 
     const nextQuestion = currentArt + 1;
-    setCurrentArt(nextQuestion);
-
-    alert(`You submitted your guess of ${userInput} bells!`)
-  }
+    if (nextQuestion >= 10) {
+      setShowScore(true);
+      alert(`Thanks for playing!`);
+    } else {
+      setCurrentArt(nextQuestion);
+    }
+  };
 
   const onChangeTextHandler = (text) => {
     setUserInput(text);
     console.log(text);
-  }
+  };
 
-  // if (!fontsLoaded) {
-  //   return <AppLoading />;
-  // } else {
-    if (currentArt === 0) {
-      return (
-        <ImageBackground
-          source={require('./assets/phonebg.png')}
-          style={styles.bg}>
-          <View style={styles.container}>
-            <Text style={styles.title}>The Bell is Right!</Text>
-            <Image
-              style={styles.homeImage}
-              source={
-                require('./assets/redd.png')
-              }
-            />
-            <TouchableHighlight style={styles.button} onPress={onPressStart} underlayColor="white">
-              <Text style={styles.buttonText}>START!</Text>
-            </TouchableHighlight>
-          <StatusBar style="auto" />
-          </View>
-        </ImageBackground>
-      )
-    } else {
-      return (
-        <ImageBackground
+  const onPressReset = () => {
+    setUserInput(0);
+    setCurrentArt(null);
+    setArtData([]);
+    setCurrentActualPrice(0);
+    setShowScore(false);
+    setScore(0);
+  };
+
+  if (currentArt === null) {
+    return (
+      <ImageBackground
         source={require('./assets/phonebg.png')}
         style={styles.bg}>
+        <View style={styles.container}>
+          <Text style={styles.title}>The Bell is Right!</Text>
+          <Image
+            style={styles.homeImage}
+            source={
+              require('./assets/redd.png')
+            }
+          />
+          <TouchableHighlight style={styles.button} onPress={onPressStart} underlayColor="white">
+            <Text style={styles.buttonText}>START!</Text>
+          </TouchableHighlight>
+        <StatusBar style="auto" />
+        </View>
+      </ImageBackground>
+    )
+  } else {
+    return (
+      <ImageBackground
+      source={require('./assets/phonebg.png')}
+      style={styles.bg}>
+        {showScore ? (
+          <View style={styles.container}>
+            <Text style={styles.score}>
+              You were {score}% off from the actual price on average!
+            </Text>
+            <TouchableHighlight style={styles.button} onPress={onPressReset} underlayColor="white">
+              <Text style={styles.buttonText}>RESET!</Text>
+            </TouchableHighlight>
+          </View>
+        ) : (
           <View style={styles.container}>
             <Text style={styles.title}>The Bell is Right!</Text>
-            <Text style={styles.artName}>{artData[currentArt].name['name-USen']}</Text>
+            <Text style={styles.artName}>"{artData[currentArt].name['name-USen']}"</Text>
             <Image
               style={styles.image}
               source={{
                 uri: artData[currentArt]['image_uri'],
               }}
             />
+            <Text style={styles.description}>
+              {artData[currentArt]['museum-desc']}
+            </Text>
             <TextInput
               style={styles.input}
               placeholder="Take your best guess!"
@@ -100,12 +117,15 @@ export default function App() {
             <TouchableHighlight onPress={onPressSubmit} style={styles.button} underlayColor="white">
               <Text style={styles.buttonText}>GUESS</Text>
             </TouchableHighlight>
+            <TouchableHighlight style={styles.reset} onPress={onPressReset} underlayColor="white">
+              <Text style={styles.buttonText}>RESET</Text>
+            </TouchableHighlight>
           <StatusBar style="auto" />
           </View>
-        </ImageBackground>
-      );
-    }
-  // }
+        )}
+      </ImageBackground>
+    );
+  }
 };
 
 const styles = StyleSheet.create({
@@ -123,7 +143,7 @@ const styles = StyleSheet.create({
     fontSize: 40,
     marginBottom: 40,
     color: '#964B00',
-    // fontFamily: 'FinkHeavy'
+    fontFamily: 'MarkerFelt-Wide'
   },
   homeImage: {
     width: 256,
@@ -140,8 +160,25 @@ const styles = StyleSheet.create({
     width: 256,
     height: 256,
   },
+  description: {
+    marginTop: 20,
+    marginBottom: 20,
+    width: 320,
+    alignItems: 'center',
+    justifyContent: 'center',
+    textAlign: 'center',
+    fontStyle: 'italic'
+  },
   input: {
+    margin: 10,
+    padding: 10,
+    width: 260,
     height: 40,
+    borderWidth: 1,
+    backgroundColor: 'white',
+    borderColor: '#c9d2f8',
+    justifyContent: 'center',
+    textAlign: 'center',
   },
   button: {
     width: 260,
@@ -149,10 +186,31 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: '#c9d2f8',
+    borderColor: '#964B00',
+    borderWidth: 3,
     borderRadius: 10,
-    overflow: 'hidden'
+    overflow: 'hidden',
+    marginBottom: 40,
+  },
+  reset: {
+    width: 260,
+    height: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#c9d2f8',
+    borderRadius: 10,
+    borderColor: 'white',
+    borderWidth: 3,
+    overflow: 'hidden',
+    marginTop: 40
   },
   buttonText: {
-    fontWeight: 'bold'
+    fontWeight: 'bold',
+    color: '#964B00'
+  },
+  score: {
+    marginBottom: 10,
+    fontSize: 20,
+    color: 'red'
   }
 });
