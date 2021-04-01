@@ -11,12 +11,20 @@ export default function App() {
   const [artData, setArtData] = useState([]);
   const [currentActualPrice, setCurrentActualPrice] = useState(0);
   const [showScore, setShowScore] = useState(false);
-  const [score, setScore] = useState(0);
+  const [score1, setScore1] = useState(0);
+  const [score2, setScore2] = useState(0);
+  const [players, setPlayers] = useState(1);
+  const [player, setPlayer] = useState(1);
+  const [winner, setWinner] = useState('');
 
-  const onPressStart = () => {
+  const onPressStart = (playerNumber) => {
     let newArtOrder = shuffleArt(ArtArr).slice(0, 10);
     setArtData(newArtOrder);
     setCurrentArt(0);
+
+    if (playerNumber === 2) {
+      setPlayers(2);
+    }
   };
 
   const shuffleArt = (array) => {
@@ -33,10 +41,10 @@ export default function App() {
     return array;
   };
 
-  const onPressSubmit = () => {
+  const onPressSubmit1 = () => {
     const actualPrice = artData[currentArt]['buy-price'];
-    const weightedDifference = (( (score * currentArt) + ( 100 * Math.abs(actualPrice - userInput) / actualPrice ) ) / (currentArt + 1))
-    setScore(weightedDifference.toFixed(2))
+    const weightedDifference = (( (score1 * currentArt) + ( 100 * Math.abs(actualPrice - userInput) / actualPrice ) ) / (currentArt + 1))
+    setScore1(weightedDifference.toFixed(2))
 
     const nextQuestion = currentArt + 1;
     if (nextQuestion >= 10) {
@@ -47,9 +55,38 @@ export default function App() {
     }
   };
 
+  const onPressSubmit2 = () => {
+    const actualPrice = artData[currentArt]['buy-price'];
+
+    const nextQuestion = currentArt + 1;
+    let weightedDifference;
+
+    if (player === 1) {
+      weightedDifference = (( (score1 * currentArt) + ( 100 * Math.abs(actualPrice - userInput) / actualPrice ) ) / (currentArt + 1))
+      setScore1(weightedDifference.toFixed(2))
+      setPlayer(2);
+    } else {
+      weightedDifference = (( (score2 * currentArt) + ( 100 * Math.abs(actualPrice - userInput) / actualPrice ) ) / (currentArt + 1))
+      setScore2(weightedDifference.toFixed(2))
+
+      if (nextQuestion >= 10) {
+        setShowScore(true);
+        if (score1 < score2) {
+          setWinner('Player 1');
+        } else {
+          setWinner('Player 2');
+        }
+
+        alert(`Thanks for playing!`);
+      } else {
+        setCurrentArt(nextQuestion);
+        setPlayer(1);
+      }
+    }
+  };
+
   const onChangeTextHandler = (text) => {
     setUserInput(text);
-    console.log(text);
   };
 
   const onPressReset = () => {
@@ -58,7 +95,8 @@ export default function App() {
     setArtData([]);
     setCurrentActualPrice(0);
     setShowScore(false);
-    setScore(0);
+    setScore1(0);
+    setScore2(0);
   };
 
   if (currentArt === null) {
@@ -74,14 +112,17 @@ export default function App() {
               require('./assets/redd.png')
             }
           />
-          <TouchableHighlight style={styles.button} onPress={onPressStart} underlayColor="white">
-            <Text style={styles.buttonText}>START!</Text>
+          <TouchableHighlight style={styles.button} onPress={() => onPressStart(1)} underlayColor="white">
+            <Text style={styles.buttonText}>1 PLAYER START!</Text>
+          </TouchableHighlight>
+          <TouchableHighlight style={styles.button} onPress={() => onPressStart(2)} underlayColor="white">
+            <Text style={styles.buttonText}>2 PLAYERS START!</Text>
           </TouchableHighlight>
         <StatusBar style="auto" />
         </View>
       </ImageBackground>
     )
-  } else {
+  } else if (players === 1) {
     return (
       <ImageBackground
       source={require('./assets/phonebg.png')}
@@ -89,7 +130,7 @@ export default function App() {
         {showScore ? (
           <View style={styles.container}>
             <Text style={styles.score}>
-              You were {score}% off from the actual price on average!
+              You were {score1}% off from the actual price on average!
             </Text>
             <TouchableHighlight style={styles.button} onPress={onPressReset} underlayColor="white">
               <Text style={styles.buttonText}>RESET!</Text>
@@ -113,8 +154,61 @@ export default function App() {
               placeholder="Take your best guess!"
               onChangeText={(text) => onChangeTextHandler(text)}
               defaultValue={userInput}
+              clearTextOnFocus={true}
             />
-            <TouchableHighlight onPress={onPressSubmit} style={styles.button} underlayColor="white">
+            <TouchableHighlight onPress={onPressSubmit1} style={styles.button} underlayColor="white">
+              <Text style={styles.buttonText}>GUESS</Text>
+            </TouchableHighlight>
+            <TouchableHighlight style={styles.reset} onPress={onPressReset} underlayColor="white">
+              <Text style={styles.buttonText}>RESET</Text>
+            </TouchableHighlight>
+          <StatusBar style="auto" />
+          </View>
+        )}
+      </ImageBackground>
+    );
+  } else {
+    return (
+      <ImageBackground
+      source={require('./assets/phonebg.png')}
+      style={styles.bg}>
+        {showScore ? (
+          <View style={styles.container}>
+            <Text style={styles.score}>
+              {winner} WINS!
+            </Text>
+            <Text>
+              Player 1 was{"\n"}
+              {score1}% off from the actual price on average{"\n"}
+              {"\n"}
+              Player 2 was{"\n"}
+              {score2}% off from the actual price on average
+            </Text>
+            <TouchableHighlight style={styles.button} onPress={onPressReset} underlayColor="white">
+              <Text style={styles.buttonText}>RESET!</Text>
+            </TouchableHighlight>
+          </View>
+        ) : (
+          <View style={styles.container}>
+            <Text style={styles.title}>The Bell is Right!</Text>
+            <Text>Player {player}'s turn</Text>
+            <Text style={styles.artName}>"{artData[currentArt].name['name-USen']}"</Text>
+            <Image
+              style={styles.image}
+              source={{
+                uri: artData[currentArt]['image_uri'],
+              }}
+            />
+            <Text style={styles.description}>
+              {artData[currentArt]['museum-desc']}
+            </Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Take your best guess!"
+              onChangeText={(text) => onChangeTextHandler(text)}
+              defaultValue={userInput}
+            />
+            <TouchableHighlight onPress={onPressSubmit2} style={styles.button} underlayColor="white">
               <Text style={styles.buttonText}>GUESS</Text>
             </TouchableHighlight>
             <TouchableHighlight style={styles.reset} onPress={onPressReset} underlayColor="white">
