@@ -1,7 +1,7 @@
 import { StatusBar } from 'expo-status-bar';
 import React, { useState, useEffect } from 'react';
 import ArtArr from './ArtArr';
-import { StyleSheet, TextInput, Image, ImageBackground, Text, View, TouchableHighlight, Platform } from 'react-native';
+import { StyleSheet, TextInput, Image, ImageBackground, Text, View, TouchableHighlight, Platform, KeyboardAvoidingView } from 'react-native';
 import AppLoading from 'expo-app-loading';
 import { useFonts, Inter_900Black } from '@expo-google-fonts/inter';
 
@@ -97,6 +97,9 @@ export default function App() {
     setShowScore(false);
     setScore1(0);
     setScore2(0);
+    setPlayers(1);
+    setPlayer(1);
+    setWinner('');
   };
 
   if (currentArt === null) {
@@ -124,100 +127,110 @@ export default function App() {
     )
   } else if (players === 1) {
     return (
-      <ImageBackground
-      source={require('./assets/phonebg.png')}
-      style={styles.bg}>
-        {showScore ? (
-          <View style={styles.container}>
-            <Text style={styles.score}>
-              You were {score1}% off from the actual price on average!
-            </Text>
-            <TouchableHighlight style={styles.button} onPress={onPressReset} underlayColor="white">
-              <Text style={styles.buttonText}>RESET!</Text>
-            </TouchableHighlight>
-          </View>
-        ) : (
-          <View style={styles.container}>
-            <Text style={styles.title}>The Bell is Right!</Text>
-            <Text style={styles.artName}>"{artData[currentArt].name['name-USen']}"</Text>
-            <Image
-              style={styles.image}
-              source={{
-                uri: artData[currentArt]['image_uri'],
-              }}
-            />
-            <Text style={styles.description}>
-              {artData[currentArt]['museum-desc']}
-            </Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Take your best guess!"
-              onChangeText={(text) => onChangeTextHandler(text)}
-              defaultValue={userInput}
-              clearTextOnFocus={true}
-            />
-            <TouchableHighlight onPress={onPressSubmit1} style={styles.button} underlayColor="white">
-              <Text style={styles.buttonText}>GUESS</Text>
-            </TouchableHighlight>
-            <TouchableHighlight style={styles.reset} onPress={onPressReset} underlayColor="white">
-              <Text style={styles.buttonText}>RESET</Text>
-            </TouchableHighlight>
-          <StatusBar style="auto" />
-          </View>
-        )}
-      </ImageBackground>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        style={styles.bg}
+      >
+        <ImageBackground
+        source={require('./assets/phonebg.png')}
+        style={styles.bg}>
+          {showScore ? (
+            <View style={styles.container}>
+              <Text style={styles.score}>
+                You were {score1}% off from the actual price on average!
+              </Text>
+              <TouchableHighlight style={styles.button} onPress={onPressReset} underlayColor="white">
+                <Text style={styles.buttonText}>RESET!</Text>
+              </TouchableHighlight>
+            </View>
+          ) : (
+            <View style={styles.container}>
+              <Text style={styles.title}>The Bell is Right!</Text>
+              <Text style={styles.artName}>"{artData[currentArt].name['name-USen']}"</Text>
+              <Image
+                style={styles.image}
+                source={{
+                  uri: artData[currentArt]['image_uri'],
+                }}
+              />
+              <Text style={styles.description}>
+                {artData[currentArt]['museum-desc']}
+              </Text>
+              <TextInput
+                style={styles.input}
+                placeholder="Take your best guess!"
+                onChangeText={(text) => onChangeTextHandler(text)}
+                defaultValue={userInput}
+                clearTextOnFocus={true}
+              />
+              <TouchableHighlight onPress={onPressSubmit1} style={styles.button} underlayColor="white">
+                <Text style={styles.buttonText}>GUESS</Text>
+              </TouchableHighlight>
+              <TouchableHighlight style={styles.reset} onPress={onPressReset} underlayColor="white">
+                <Text style={styles.buttonText}>RESET</Text>
+              </TouchableHighlight>
+            <StatusBar style="auto" />
+            </View>
+          )}
+        </ImageBackground>
+      </KeyboardAvoidingView>
     );
   } else {
     return (
-      <ImageBackground
-      source={require('./assets/phonebg.png')}
-      style={styles.bg}>
-        {showScore ? (
-          <View style={styles.container}>
-            <Text style={styles.score}>
-              {winner} WINS!
-            </Text>
-            <Text>
-              Player 1 was{"\n"}
-              {score1}% off from the actual price on average{"\n"}
-              {"\n"}
-              Player 2 was{"\n"}
-              {score2}% off from the actual price on average
-            </Text>
-            <TouchableHighlight style={styles.button} onPress={onPressReset} underlayColor="white">
-              <Text style={styles.buttonText}>RESET!</Text>
-            </TouchableHighlight>
-          </View>
-        ) : (
-          <View style={styles.container}>
-            <Text style={styles.title}>The Bell is Right!</Text>
-            <Text>Player {player}'s turn</Text>
-            <Text style={styles.artName}>"{artData[currentArt].name['name-USen']}"</Text>
-            <Image
-              style={styles.image}
-              source={{
-                uri: artData[currentArt]['image_uri'],
-              }}
-            />
-            <Text style={styles.description}>
-              {artData[currentArt]['museum-desc']}
-            </Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Take your best guess!"
-              onChangeText={(text) => onChangeTextHandler(text)}
-              defaultValue={userInput}
-            />
-            <TouchableHighlight onPress={onPressSubmit2} style={styles.button} underlayColor="white">
-              <Text style={styles.buttonText}>GUESS</Text>
-            </TouchableHighlight>
-            <TouchableHighlight style={styles.reset} onPress={onPressReset} underlayColor="white">
-              <Text style={styles.buttonText}>RESET</Text>
-            </TouchableHighlight>
-          <StatusBar style="auto" />
-          </View>
-        )}
-      </ImageBackground>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        style={styles.bg}
+      >
+        <ImageBackground
+        source={require('./assets/phonebg.png')}
+        style={styles.bg}>
+          {showScore ? (
+            <View style={styles.container}>
+              <Text style={styles.score}>
+                {winner} WINS!
+              </Text>
+              <Text>
+                Player 1 was{"\n"}
+                {score1}% off from the actual price on average{"\n"}
+                {"\n"}
+                Player 2 was{"\n"}
+                {score2}% off from the actual price on average
+              </Text>
+              <TouchableHighlight style={styles.button} onPress={onPressReset} underlayColor="white">
+                <Text style={styles.buttonText}>RESET!</Text>
+              </TouchableHighlight>
+            </View>
+          ) : (
+            <View style={styles.container}>
+              <Text style={styles.playerTurn}>Player {player}'s turn</Text>
+              <Text style={styles.artName}>"{artData[currentArt].name['name-USen']}"</Text>
+              <Image
+                style={styles.image}
+                source={{
+                  uri: artData[currentArt]['image_uri'],
+                }}
+              />
+              <Text style={styles.description}>
+                {artData[currentArt]['museum-desc']}
+              </Text>
+              <TextInput
+                style={styles.input}
+                placeholder="Take your best guess!"
+                onChangeText={(text) => onChangeTextHandler(text)}
+                defaultValue={userInput}
+                clearTextOnFocus={true}
+              />
+              <TouchableHighlight onPress={onPressSubmit2} style={styles.button} underlayColor="white">
+                <Text style={styles.buttonText}>GUESS</Text>
+              </TouchableHighlight>
+              <TouchableHighlight style={styles.reset} onPress={onPressReset} underlayColor="white">
+                <Text style={styles.buttonText}>RESET</Text>
+              </TouchableHighlight>
+            <StatusBar style="auto" />
+            </View>
+          )}
+        </ImageBackground>
+      </KeyboardAvoidingView>
     );
   }
 };
@@ -245,6 +258,15 @@ const styles = StyleSheet.create({
     resizeMode: "cover",
     justifyContent: "center",
     marginBottom: 40
+  },
+  playerTurn: {
+    width: '100%',
+    textAlign: 'center',
+    fontSize: 40,
+    marginBottom: 40,
+    color: 'white',
+    fontFamily: 'MarkerFelt-Wide',
+    backgroundColor: '#964B00'
   },
   artName: {
     fontSize: 30,
@@ -296,7 +318,7 @@ const styles = StyleSheet.create({
     borderColor: 'white',
     borderWidth: 3,
     overflow: 'hidden',
-    marginTop: 40
+    marginTop: 20
   },
   buttonText: {
     fontWeight: 'bold',
