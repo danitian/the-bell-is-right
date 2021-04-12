@@ -1,2 +1,3 @@
 # the-bell-is-right
-MVP 2
+
+Mobile Animal Crossing pass-and-play game
