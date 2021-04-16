@@ -1,4 +1,4 @@
-# the-bell-is-right
+# The Bell is Right
 
 Mobile Animal Crossing pass-and-play game developed in half a day for fun, to learn React Native.
 
